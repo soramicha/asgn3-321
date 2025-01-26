@@ -24,11 +24,11 @@ def main():
     q = int(new_q)
     a = int(new_a)
 
-    # mallory changes a to q, q - 1, or 1
-    # in this case a gets changed to q - 1
-    a = q - 1
     print("q is: ", q)
     print("a is: ", a)
+    # mallory changes a to q, q - 1, or 1
+    a = 1
+    print("Oh no! Mallory has changed the value of a to ", a, "\n")
 
     # generating private keys
     # alice
@@ -49,8 +49,6 @@ def main():
     s_alice = pow(YB, XA) % q
     # bob
     s_bob = pow(YA, XB) % q
-    # mallory
-    s_mallory = pow(YA, XB) % q
     # both secret keys should be exactly the same
     # this is their shared secret
     print("Bob's secret key: ", s_bob)
@@ -61,10 +59,19 @@ def main():
     k_alice = sha256(str(s_alice).encode("utf-8")).hexdigest()[:16]
     # bob
     k_bob = sha256(str(s_bob).encode("utf-8")).hexdigest()[:16]
-    # mallory is also computing her own key
-    k_mallory = sha256(str(s_mallory).encode("utf-8")).hexdigest()[:16]
     print("Bob and Alice's key respectively: ", k_alice, ", ", k_bob)
-    print("Mallory's key after she assigned YA and YB to 0: ", k_mallory, "\n")
+
+    # mallory determining shared secret
+    s_mallory = 0
+    if a == 1:
+        s_mallory = 1
+    elif a == q:
+        s_mallory = 0
+    elif a == (q - 1):
+        s_mallory = 1
+    # mallory deriving her secret key
+    k_mallory = sha256(str(s_mallory).encode("utf-8")).hexdigest()[:16]
+    print("Mallory has gotten her key from changing a! It is ", k_mallory)
 
     # create a shared initialization vector of 16 bytes
     IV = get_random_bytes(16)
