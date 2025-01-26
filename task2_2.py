@@ -24,7 +24,8 @@ def main():
     q = int(new_q)
     a = int(new_a)
 
-    # mallory also changes a to q
+    # mallory changes a to q, q - 1, or 1
+    # in this case a gets changed to q - 1
     a = q - 1
     print("q is: ", q)
     print("a is: ", a)
