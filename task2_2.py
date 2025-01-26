@@ -4,7 +4,7 @@ from Crypto.Util.Padding import unpad
 import random
 from hashlib import sha256
 
-# Task 2.1
+# Task 2.2
 def main():
     # agreeing on q and a between Bob and Alice
     q = "B10B8F96 A080E01D DE92DE5E AE5D54EC 52C99FBC FB06A3C6 9A6A9DCA 52D23B61 6073E286 75A23D18 9838EF1E 2EE652C0 13ECB4AE A9061123 24975C3C D49B83BF ACCBDD7D 90C4BD70 98488E9C 219A7372 4EFFD6FA E5644738 FAA31A4F F55BCCC0 A151AF5F 0DC8B4BD 45BF37DF 365C1A65 E68CFDA7 6D4DA708 DF1FB2BC 2E4A4371"
@@ -108,7 +108,7 @@ def alice_sends_to_bob(m_alice, k_alice, k_bob, k_mallory, IV):
     # unpad the message
     unpadded_message_alice = unpad(decrypted_message_alice, 16).decode("utf-8")
     print("What Mallory reads from Alice: ", unpadded_message_alice)
-    print("Mallory sends the IV and encrypted message from Alice to Bob\n")
+    print("Mallory sends the encrypted message from Alice to Bob\n")
 
     # on bob's side
     k_bob = k_bob.encode("utf-8")
@@ -148,7 +148,7 @@ def bob_sends_to_alice(m_bob, k_alice, k_bob, k_mallory, IV):
     # unpad the message
     unpadded_message_bob = unpad(decrypted_message_bob, 16).decode("utf-8")
     print("What Mallory reads from Bob: ", unpadded_message_bob)
-    print("Mallory sends the IV and encrypted message from Bob to Alice\n")
+    print("Mallory sends the encrypted message from Bob to Alice\n")
 
     # on alice's side
     k_alice = k_alice.encode("utf-8")
