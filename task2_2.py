@@ -10,7 +10,7 @@ def main():
     q = "B10B8F96 A080E01D DE92DE5E AE5D54EC 52C99FBC FB06A3C6 9A6A9DCA 52D23B61 6073E286 75A23D18 9838EF1E 2EE652C0 13ECB4AE A9061123 24975C3C D49B83BF ACCBDD7D 90C4BD70 98488E9C 219A7372 4EFFD6FA E5644738 FAA31A4F F55BCCC0 A151AF5F 0DC8B4BD 45BF37DF 365C1A65 E68CFDA7 6D4DA708 DF1FB2BC 2E4A4371"
     a = "A4D1CBD5 C3FD3412 6765A442 EFB99905 F8104DD2 58AC507F D6406CFF 14266D31 266FEA1E 5C41564B 777E690F 5504F213 160217B4 B01B886A 5E91547F 9E2749F4 D7FBD7D3 B9A92EE1 909D0D22 63F80A76 A6A24C08 7A091F53 1DBF0A01 69B6A28A D662A4D1 8E73AFA3 2D779D59 18D08BC8 858F4DCE F97C2A24 855E6EEB 22B3B2E5"
 
-    # convert ascii into numbers
+# convert ascii into numbers
     new_q = ""
     for i in q:
         if i != " ":
@@ -23,6 +23,9 @@ def main():
 
     q = int(new_q)
     a = int(new_a)
+
+    # mallory also changes a to q
+    a = q
     print("q is: ", q)
     print("a is: ", a)
 
@@ -40,16 +43,13 @@ def main():
     # bob
     YB = pow(a, XB) % q
 
-    # mallory intercepts alice and bob's public key when they try to send it to each other
-    # modification of YA and YB
-    YB = q
-    YA = q
-
     # exchange keys and now generate secret key
     # alice
     s_alice = pow(YB, XA) % q
     # bob
     s_bob = pow(YA, XB) % q
+    # mallory
+    s_mallory = pow(YA, XB) % q
     # both secret keys should be exactly the same
     # this is their shared secret
     print("Bob's secret key: ", s_bob)
@@ -61,7 +61,7 @@ def main():
     # bob
     k_bob = sha256(str(s_bob).encode("utf-8")).hexdigest()[:16]
     # mallory is also computing her own key
-    k_mallory = sha256(b'0').hexdigest()[:16]
+    k_mallory = sha256(str(s_mallory).encode("utf-8")).hexdigest()[:16]
     print("Bob and Alice's key respectively: ", k_alice, ", ", k_bob)
     print("Mallory's key after she assigned YA and YB to 0: ", k_mallory, "\n")
 
@@ -135,7 +135,7 @@ def bob_sends_to_alice(m_bob, k_alice, k_bob, k_mallory, IV):
     m_bob += bytes([bytes_to_add] * bytes_to_add)
     # encrypt the message
     encryption_bob = cipher_object_bob.encrypt(m_bob)
-    print("Bob's message to Alice after encryption: ", encryption_bob)
+    print("Bob's message to Alice after encryption: ", encryption_bob, "\n")
 
     print("Bob is sending encrypted message along with IV...oops! Mallory intercepted it!")
     print("Decrypting on Mallory's end...")

@@ -135,7 +135,7 @@ def bob_sends_to_alice(m_bob, k_alice, k_bob, k_mallory, IV):
     m_bob += bytes([bytes_to_add] * bytes_to_add)
     # encrypt the message
     encryption_bob = cipher_object_bob.encrypt(m_bob)
-    print("Bob's message to Alice after encryption: ", encryption_bob)
+    print("Bob's message to Alice after encryption: ", encryption_bob, "\n")
 
     print("Bob is sending encrypted message along with IV...oops! Mallory intercepted it!")
     print("Decrypting on Mallory's end...")
