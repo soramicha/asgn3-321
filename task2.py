@@ -4,7 +4,7 @@ from Crypto.Util.Padding import unpad
 import random
 from hashlib import sha256
 
-# Task #1
+
 def main():
     # agreeing on q and a between Bob and Alice
     q = "B10B8F96 A080E01D DE92DE5E AE5D54EC 52C99FBC FB06A3C6 9A6A9DCA 52D23B61 6073E286 75A23D18 9838EF1E 2EE652C0 13ECB4AE A9061123 24975C3C D49B83BF ACCBDD7D 90C4BD70 98488E9C 219A7372 4EFFD6FA E5644738 FAA31A4F F55BCCC0 A151AF5F 0DC8B4BD 45BF37DF 365C1A65 E68CFDA7 6D4DA708 DF1FB2BC 2E4A4371"
@@ -24,7 +24,7 @@ def main():
     q = int(new_q)
     a = int(new_a)
     print("q is: ", q)
-    print("a is: ", a, "\n")
+    print("a is: ", a)
 
     # generating private keys
     # alice
@@ -32,13 +32,18 @@ def main():
     # bob
     XB = random.randint(0, 1000)
     print("Bob's private key: ", XB)
-    print("Alice's private key: ", XA, "\n")
+    print("Alice's private key: ", XA)
 
     # generate public keys
     # alice
     YA = pow(a, XA) % q
     # bob
     YB = pow(a, XB) % q
+
+    # mallory intercepts alice and bob's public key when they try to send it to each other
+    # modification of YA and YB
+    YB = q
+    YA = q
 
     # exchange keys and now generate secret key
     # alice
@@ -55,24 +60,28 @@ def main():
     k_alice = sha256(str(s_alice).encode("utf-8")).hexdigest()[:16]
     # bob
     k_bob = sha256(str(s_bob).encode("utf-8")).hexdigest()[:16]
+    # mallory is also computing her own key
+    k_mallory = sha256(b'0').hexdigest()[:16]
+    print("Bob and Alice's key respectively: ", k_alice, ", ", k_bob)
+    print("Mallory's key after she assigned YA and YB to 0: ", k_mallory, "\n")
 
-    # create a shared initialization vector of 16 bytes
-    IV = get_random_bytes(16)
 
     # create a message
     # alice
     m_alice = "Hi Bob, it's Alice!"
     print("Alice's message to Bob before encryption: ", m_alice)
-    alice_sends_to_bob(m_alice, k_alice, k_bob, IV)
+    alice_sends_to_bob(m_alice, k_alice, k_bob)
 
     # create a message
     # bob
     m_bob = "Hey Alice, what's up! Long time no talk!"
     print("Bob's message to Alice before encryption: ", m_bob)
-    bob_sends_to_alice(m_bob, k_alice, k_bob, IV)
+    bob_sends_to_alice(m_bob, k_alice, k_bob)
 
-def alice_sends_to_bob(m_alice, k_alice, k_bob, IV):
+def alice_sends_to_bob(m_alice, k_alice, k_bob):
     # encrypt on alice's side
+    # create an initialization vector of 16 bytes
+    IV = get_random_bytes(16)
     # convert alice's message into bytes
     m_alice = m_alice.encode("utf-8")
     # get the length of the message of bytes
@@ -96,17 +105,19 @@ def alice_sends_to_bob(m_alice, k_alice, k_bob, IV):
     decrypted_message_alice = cipher_object_bob.decrypt(encryption_alice)
     # unpad the message
     unpadded_message_alice = unpad(decrypted_message_alice, 16).decode("utf-8")
-    print("Alice's message after decryption: ", unpadded_message_alice, "\n")
+    print("Alice's message after decryption: ", unpadded_message_alice)
 
-def bob_sends_to_alice(m_bob, k_alice, k_bob, IV):
+def bob_sends_to_alice(m_bob, k_alice, k_bob):
     # encrypt on bob's side
+    # create an initialization vector of 16 bytes
+    IV = get_random_bytes(16)
     # convert bob's message into bytes
     m_bob = m_bob.encode("utf-8")
     # get the length of the message of bytes
     n = len(m_bob)
 
     # create a cipher block
-    cipher_object_bob = AES.new(k_bob.encode("utf-8"), AES.MODE_CBC, IV)
+    cipher_object_bob = AES.new(k_alice.encode("utf-8"), AES.MODE_CBC, IV)
     bytes_to_add = 16 - n % 16
 
     # pad the message
@@ -118,12 +129,14 @@ def bob_sends_to_alice(m_bob, k_alice, k_bob, IV):
     # on alice's side
     k_alice = k_alice.encode("utf-8")
     # create a cipher block
-    cipher_object_alice = AES.new(k_alice, AES.MODE_CBC, IV)
+    cipher_object_bob = AES.new(k_alice, AES.MODE_CBC, IV)
     n = len(encryption_bob)
-    decrypted_message_bob = cipher_object_alice.decrypt(encryption_bob)
+    decrypted_message_bob = cipher_object_bob.decrypt(encryption_bob)
     # unpad the message
     unpadded_message_bob = unpad(decrypted_message_bob, 16).decode("utf-8")
     print("Bob's message after decryption: ", unpadded_message_bob)
+
+
 
 main()
 
