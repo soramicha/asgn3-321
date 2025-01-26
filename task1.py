@@ -28,9 +28,9 @@ def main():
 
     # generating private keys
     # alice
-    XA = random.randint(0, 1000)
+    XA = random.randint(1, 1000)
     # bob
-    XB = random.randint(0, 1000)
+    XB = random.randint(1, 1000)
     print("Bob's private key: ", XB)
     print("Alice's private key: ", XA, "\n")
 
